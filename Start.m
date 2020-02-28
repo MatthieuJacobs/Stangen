@@ -1,0 +1,99 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Kinematica en werkuigendynamica.
+%
+% Taak stangen (8 stangen pantograaf)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clear
+close all
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Data initialization (all data is converted to SI units)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% program data
+fig_kin_8bar = 1;        % draw figures of kinematic analysis if 1
+fig_dyn_8bar = 1;        % draw figures of dynamic analysis if 1
+
+% kinematic parameters (link lengths)
+r0 = 0.1473;
+r1 = 0.045132;
+r2 = 0.024375;
+r3 = 0.272385;
+r4 = 0.27012;
+r5 = 0.12871;
+r6 = 0.124827;
+AE = 0.123849;
+FC = 0.147357;
+EB = 0.148536;
+BF = 0.122763;
+phi0 = 0;
+
+%DYNAMISCHE PARAMETERS NOG TE DEFINIËREN!!!
+% dynamic parameters, defined in a local frame on each of the bars.
+X2 = r2/2;               % X coordinates of cog (centre of gravity)
+X3 = r3/2;
+X4 = r4/2;
+
+Y2 = 0;                  % Y coordinates of cog
+Y3 = 0.0102362;
+Y4 = 0;
+
+m2 = r2*1.76;
+m3 = r3*1.76;
+m4 = r4*0.54;
+
+J2 = m2*r2^2/12;
+J3 = m3*r3^2/12;
+J4 = m4*r4^2/12;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% STEP 1. Determination of Kinematics
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% position analysis
+phi2_init = pi/2;
+phi3_init = pi/4;    % initial condition for first step of position analysis with fsolve (phi3 and phi4)
+phi4_init = 7*pi/4;  % VERY IMPORTANT because it determines which branch of the mechanism you're in
+phi5_init = pi/4;
+phi6_init = 7*pi/4;
+x7_init = 0.1952;
+t_begin = 0;                   % start time of simulation
+t_end = 20;                    % end time of simulation
+Ts = 0.05;                     % time step of simulation
+t = [t_begin:Ts:t_end]';       % time vector
+
+% initialization of driver
+omega = 0.2;
+A = pi; % amplitude van hoek
+theta = 0.8481; % zorg ervoor dat phi1 in het begin 135 graden is (ongeveer)
+% phi1=A*sin(omega*t+theta);
+% dphi1=omega*A*cos(omega*t);
+% ddphi1=-omega^2*A*sin(omega*t); % omega ct
+phi1 = omega*t+3*pi/2;
+dphi1 = omega*ones(length(t));
+ddphi1 =0*t;
+
+% calculation of the kinematics (see kin_8bar.m)
+[phi2,phi3,phi4,phi5,phi6,x7,dphi2,dphi3,dphi4,dphi5,dphi6,dx7,ddphi2,ddphi3,ddphi4,ddphi5,ddphi6,ddx7] = kinematics_8bar(r0,r1,r2,r5,r6,AE,FC,BF,EB,phi0,phi1,dphi1,ddphi1,phi2_init,phi3_init,phi4_init,phi5_init,phi6_init,x7_init,t,fig_kin_8bar);
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % STEP 2. Dynamics Calculation
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% % calculation of the dynamics (see dyn_4bar.m)
+% [F_P_x,F_Q_x,F_R_x,F_S_x,F_P_y,F_Q_y,F_R_y,F_S_y,M_P] = dynamics_4bar(phi2,phi3,phi4,dphi2,dphi3,dphi4,ddphi2,ddphi3,ddphi4,r2,r3,r4, ...
+%   m2,m3,m4,X2,X3,X4,Y2,Y3,Y4,J2,J3,J4,t,fig_dyn_4bar);
+% 
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % STEP 3. Movie
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% figure
+% load fourbar_movie Movie
+% movie(Movie)
