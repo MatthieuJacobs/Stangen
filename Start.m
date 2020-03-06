@@ -43,7 +43,7 @@ r4 = BF+FC;
 % BF = 0.5;
 % phi0 = 0;
 % r3 = 1;
-r4 = 1;
+%r4 = 1;
 
 %DYNAMISCHE PARAMETERS NOG TE DEFINIËREN!!!
 % dynamic parameters, defined in a local frame on each of the bars.
@@ -69,7 +69,7 @@ J4 = m4*r4^2/12;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % position analysis
-phi2_init = pi/2;
+phi2_init = (pi+0.5)/2;
 phi3_init = pi/4;    % initial condition for first step of position analysis with fsolve (phi3 and phi4)
 phi4_init = 5*pi/3;  % VERY IMPORTANT because it determines which branch of the mechanism you're in
 phi5_init = pi/4;
@@ -86,7 +86,7 @@ A = pi; % amplitude van hoek
 % phi1=A*sin(omega*t+theta);
 % dphi1=omega*A*cos(omega*t);
 % ddphi1=-omega^2*A*sin(omega*t); % omega ct
-phi1 = -omega*t+pi/2;
+phi1 = -omega*t+pi/2 -0.25;
 dphi1 = -omega*ones(length(t));
 ddphi1 =0*t;
 

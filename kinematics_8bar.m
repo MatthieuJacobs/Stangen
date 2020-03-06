@@ -133,12 +133,12 @@ for k=1:t_size
     
     
     % *** calculate initial values for next iteration step ***
-    phi2_init = phi2(k);%+Ts*dphi2(k);
-    phi3_init = phi3(k);%+Ts*dphi3(k);
-    phi4_init = phi4(k);%+Ts*dphi4(k);
-    phi5_init = phi5(k);%+Ts*dphi5(k);
-    phi6_init = phi6(k);%+Ts*dphi6(k);
-    x7_init = x7(k);%+Ts*dx7(k);
+    phi2_init = phi2(k)+Ts*dphi2(k);
+    phi3_init = phi3(k)+Ts*dphi3(k);
+    phi4_init = phi4(k)+Ts*dphi4(k);
+    phi5_init = phi5(k)+Ts*dphi5(k);
+    phi6_init = phi6(k)+Ts*dphi6(k);
+    x7_init = x7(k)+Ts*dx7(k);
     
     
     % Controleren door kinematische lus
