@@ -19,20 +19,33 @@ fig_kin_8bar = 1;        % draw figures of kinematic analysis if 1
 fig_dyn_8bar = 1;        % draw figures of dynamic analysis if 1
 
 % kinematic parameters (link lengths)
-r0 = 0.1473;
-r1 = 0.045132;
-r2 = 0.024375;
-r3 = 0.272385;
-r4 = 0.27012;
-r5 = 0.12871;
-r6 = 0.124827;
-AE = 0.123849;
-FC = 0.147357;
-EB = 0.148536;
-BF = 0.122763;
+r0 = 0.4930;
+r1 = 0.15063;
+r2 = 0.08139;
+r5 = 0.49429;
+r6 = 0.40688;
+AE = 0.40875;
+FC = 0.49369;
+EB = 0.49402;
+BF = 0.40468;
 phi0 = 0;
+r3 = AE+EB;
+r4 = BF+FC;
 
-%DYNAMISCHE PARAMETERS NOG TE DEFINIËREN!!!
+% r0 = 0.65;
+% r1 = 0.3;
+% r2 = 0.15;
+% r5 = 0.40;
+% r6 = 0.58;
+% AE = 0.5;
+% FC = 0.5;
+% EB = 0.5;
+% BF = 0.5;
+% phi0 = 0;
+% r3 = 1;
+r4 = 1;
+
+%DYNAMISCHE PARAMETERS NOG TE DEFINIÃ‹REN!!!
 % dynamic parameters, defined in a local frame on each of the bars.
 X2 = r2/2;               % X coordinates of cog (centre of gravity)
 X3 = r3/2;
@@ -58,24 +71,23 @@ J4 = m4*r4^2/12;
 % position analysis
 phi2_init = pi/2;
 phi3_init = pi/4;    % initial condition for first step of position analysis with fsolve (phi3 and phi4)
-phi4_init = 7*pi/4;  % VERY IMPORTANT because it determines which branch of the mechanism you're in
+phi4_init = 5*pi/3;  % VERY IMPORTANT because it determines which branch of the mechanism you're in
 phi5_init = pi/4;
-phi6_init = 7*pi/4;
-x7_init = 0.1952;
+phi6_init = 2*pi/3;
+x7_init = r2*cos(phi2_init)+r5*cos(phi5_init)+FC*cos(phi4_init);
 t_begin = 0;                   % start time of simulation
 t_end = 20;                    % end time of simulation
 Ts = 0.05;                     % time step of simulation
 t = [t_begin:Ts:t_end]';       % time vector
 
 % initialization of driver
-omega = 0.2;
+omega = pi/10;
 A = pi; % amplitude van hoek
-theta = 0.8481; % zorg ervoor dat phi1 in het begin 135 graden is (ongeveer)
 % phi1=A*sin(omega*t+theta);
 % dphi1=omega*A*cos(omega*t);
 % ddphi1=-omega^2*A*sin(omega*t); % omega ct
-phi1 = omega*t+3*pi/2;
-dphi1 = omega*ones(length(t));
+phi1 = -omega*t+pi/2;
+dphi1 = -omega*ones(length(t));
 ddphi1 =0*t;
 
 % calculation of the kinematics (see kin_8bar.m)
