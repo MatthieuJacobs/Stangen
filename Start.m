@@ -68,20 +68,14 @@ J4 = m4*r4^2/12;
 % STEP 1. Determination of Kinematics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% position analysis
-phi3_init = (pi+0.5)/2;
-phi4_init = pi/4;    % initial condition for first step of position analysis with fsolve (phi3 and phi4)
-phi5_init = 5*pi/3;  % VERY IMPORTANT because it determines which branch of the mechanism you're in
-phi6_init = pi/4;
-phi7_init = 2*pi/3;
-x8_init = r3*cos(phi3_init)+r6*cos(phi6_init)-FC*cos(phi5_init);
+
 t_begin = 0;                   % start time of simulation
-t_end = 20;                    % end time of simulation
-Ts = 0.05;                     % time step of simulation
+t_end = 100;                    % end time of simulation
+Ts = 0.02;                     % time step of simulation
 t = [t_begin:Ts:t_end]';       % time vector
 
 % initialization of driver
-omega = pi/10;
+omega = pi/40;
 A = pi; % amplitude van hoek
 % phi1=A*sin(omega*t+theta);
 % dphi1=omega*A*cos(omega*t);
@@ -90,8 +84,16 @@ phi2 = -omega*t+pi/2 -0.25;
 dphi2 = -omega*ones(size(t));
 ddphi2 =0*t;
 
+% position analysis
+y8_init = 0;
+phi3_init = pi-phi2(1);
+phi4_init = pi/4;    % initial condition for first step of position analysis with fsolve (phi3 and phi4)
+phi5_init = 2*pi/3;  % VERY IMPORTANT because it determines which branch of the mechanism you're in
+phi6_init = pi/4;
+phi7_init = 2*pi/3;
+x8_init = r3*cos(phi3_init)+r6*cos(phi6_init)-FC*cos(phi5_init);
 % calculation of the kinematics (see kin_8bar.m)
-[phi3,phi4,phi5,phi6,phi7,x8,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,ddphi3,ddphi4,ddphi5,ddphi6,ddphi7,ddx8] = kinematics_8bar(r1,r2,r3,r4,r5,r6,r7,AE,FC,phi2,dphi2,ddphi2,phi3_init,phi4_init,phi5_init,phi6_init,phi7_init,x8_init,t,fig_kin_8bar);
+[y8,phi4,phi5,phi6,phi7,x8,dy8,dphi4,dphi5,dphi6,dphi7,dx8,ddy8,ddphi4,ddphi5,ddphi6,ddphi7,ddx8] = kinematics_8bar(r1,r2,r3,r4,r5,r6,r7,AE,FC,phi2,dphi2,ddphi2,y8_init,phi4_init,phi5_init,phi6_init,phi7_init,x8_init,t,fig_kin_8bar);
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % STEP 2. Dynamics Calculation

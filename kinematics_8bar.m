@@ -4,23 +4,23 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [phi3,phi4,phi5,phi6,phi7,x8,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,ddphi3,ddphi4,ddphi5,ddphi6,ddphi7,ddx8] = kinematics_8bar(r1,r2,r3,r4,r5,r6,r7,AE,FC,phi2,dphi2,ddphi2,phi3_init,phi4_init,phi5_init,phi6_init,phi7_init,x8_init,t,fig_kin_8bar)
+function [y8,phi4,phi5,phi6,phi7,x8,dy8,dphi4,dphi5,dphi6,dphi7,dx8,ddy8,ddphi4,ddphi5,ddphi6,ddphi7,ddx8] = kinematics_8bar(r1,r2,r3,r4,r5,r6,r7,AE,FC,phi2,dphi2,ddphi2,y8_init,phi4_init,phi5_init,phi6_init,phi7_init,x8_init,t,fig_kin_8bar)
 
 % allocation of the result vectors (this results in better performance because we don't have to reallocate and
 % copy the vector each time we add an element.
-phi3 = zeros(size(t));
+y8 = zeros(size(t));
 phi4 = zeros(size(t));
 phi5 = zeros(size(t));
 phi6 = zeros(size(t));
 phi7 = zeros(size(t));
 x8 = zeros(size(t));
-dphi3 = zeros(size(t));
+dy8 = zeros(size(t));
 dphi4 = zeros(size(t));
 dphi5 = zeros(size(t));
 dphi6 = zeros(size(t));
 dphi7 = zeros(size(t));
 dx8 = zeros(size(t));
-ddphi3 = zeros(size(t));
+ddy8 = zeros(size(t));
 ddphi4 = zeros(size(t));
 ddphi5 = zeros(size(t));
 ddphi6 = zeros(size(t));
@@ -45,7 +45,6 @@ control_numeric_ddphi4 =  zeros(size(t));
 
 % fsolve options (help fsolve, help optimset)
 optim_options = optimset('Display','off');
-t
 % *** loop over positions ***
 Ts = t(2) - t(1);      % timestep
 t_size = size(t,1);    % number of simulation steps
@@ -62,7 +61,7 @@ for k=1:t_size
     % argument a1 ... phi0: constants
     % return value x: solution for the unknown angles
     % return exitflag: indicates convergence of algorithm
-    [x, fval, exitflag]=fsolve('loop_closure_eqs_8bar',[phi3_init,phi4_init phi5_init,phi6_init,phi7_init,x8_init]',optim_options,phi2(k),r1,r2,r3,r4,r5,r6,r7,AE,FC);
+    [x, fval, exitflag]=fsolve('loop_closure_eqs_8bar',[y8_init,phi4_init phi5_init,phi6_init,phi7_init,x8_init]',optim_options,phi2(k),r1,r2,r3,r4,r5,r6,r7,AE,FC);
     if (exitflag ~= 1)
         display 'The fsolve exit flag was not 1, probably no convergence!'
         exitflag
@@ -71,34 +70,36 @@ for k=1:t_size
     end
     
     % save results of fsolve
-    phi3(k) = x(1);
+    y8(k) = x(1);
     phi4(k)=x(2);
     phi5(k)=x(3);
     phi6(k) = x(4);
     phi7(k) = x(5);
     x8(k) = x(6);
-    
-    
+    % Set phi3 equal to opposite of phi2
+    phi3(k) = pi-phi2(k);
+    dphi3(k) = -dphi2(k);
+    ddphi3(k) = -ddphi2(k);
     % *** velocity analysis ***
     
-    A = [r3*sin(phi3(k)),-AE*sin(phi4(k)),0,0,r7*sin(phi7(k)),0;
-         -r3*cos(phi3(k)),AE*cos(phi4(k)),0,0,-r7*cos(phi7(k)),0;
+    A = [0,-AE*sin(phi4(k)),0,0,r7*sin(phi7(k)),0;
+         0,AE*cos(phi4(k)),0,0,-r7*cos(phi7(k)),0;
          0,-r4*sin(phi4(k)),r5*sin(phi5(k)),0,0,-1;
-         0,r4*cos(phi5(k)),-r5*cos(phi5(k)),0,0,0;
-         -r3*sin(phi3(k)),0,FC*sin(phi5(k)),-r6*sin(phi6(k)),0,-1;
-         r3*cos(phi3(k)),0,-FC*cos(phi5(k)),r6*cos(phi6(k)),0,0];
+         -1,r4*cos(phi5(k)),-r5*cos(phi5(k)),0,0,0;
+         0,0,FC*sin(phi5(k)),-r6*sin(phi6(k)),0,-1;
+         -1,0,-FC*cos(phi5(k)),r6*cos(phi6(k)),0,0];
 
-    B = [ r2*sin(phi2(k))*dphi2(k);
-         -r2*cos(phi2(k))*dphi2(k);
+    B = [ r2*sin(phi2(k))*dphi2(k)-r3*sin(phi3(k))*dphi3(k);
+         -r2*cos(phi2(k))*dphi2(k)+r3*cos(phi3(k))*dphi3(k);
           r2*sin(phi2(k))*dphi2(k);
          -r2*cos(phi2(k))*dphi2(k);
-         0;
-         0];
+         r3*sin(phi3(k));
+         -r3*cos(phi3(k))];
      
     x = A\B;
     
     % save results
-    dphi3(k) = x(1);
+    dy8(k) = x(1);
     dphi4(k) = x(2);
     dphi5(k) = x(3);
     dphi6(k) = x(4);
@@ -108,23 +109,23 @@ for k=1:t_size
     
     % *** acceleration analysis ***
     
-    A = [r3*sin(phi3(k)),-AE*sin(phi4(k)),0,0,r7*sin(phi7(k)),0;
-        -r3*cos(phi3(k)),AE*cos(phi4(k)),0,0,-r7*cos(phi7(k)),0;
+    A = [0,-AE*sin(phi4(k)),0,0,r7*sin(phi7(k)),0;
+        0,AE*cos(phi4(k)),0,0,-r7*cos(phi7(k)),0;
         0,-r4*sin(phi4(k)),r5*sin(phi5(k)),0,0,-1;
-        0,r4*cos(phi4(k)),-r5*cos(phi5(k)),0,0,0;
-        -r3*sin(phi3(k)),-0,FC*sin(phi5(k)),-r6*cos(phi6(k)),0,-1;
-        r3*cos(phi3(k)),0,-FC*cos(phi5(k)),-r6*sin(phi6(k)),0,0];
+        -1,r4*cos(phi4(k)),-r5*cos(phi5(k)),0,0,0;
+        0,0,FC*sin(phi5(k)),-r6*cos(phi6(k)),0,-1;
+        -1,0,-FC*cos(phi5(k)),-r6*sin(phi6(k)),0,0];
      
-    B = [r2*sin(phi2(k))*ddphi2(k)+r2*cos(phi2(k))*dphi2(k)^2+-r3*cos(phi3(k))*dphi3(k)^2+AE*cos(phi4(k))*dphi4(k)^2-r7*cos(phi7(k))*dphi7(k)^2;
-        -r2*cos(phi2(k))*ddphi2(k)+r2*sin(phi2(k))*dphi2(k)^2-r3*sin(phi3(k))*dphi3(k)^2+AE*dphi4(k)^2*sin(phi4(k))-r7*sin(phi7(k))*dphi7(k)^2;
-        r2*sin(phi2(k))*ddphi2(k)+r2*cos(phi2(k))*dphi2(k)^2+AE*sin(phi4(k))*dphi4(k)^2-r5*cos(phi5(k))*dphi5(k)^2;
+    B = [r2*sin(phi2(k))*ddphi2(k)+r2*cos(phi2(k))*dphi2(k)^2+-r3*cos(phi3(k))*dphi3(k)^2+AE*cos(phi4(k))*dphi4(k)^2-r7*cos(phi7(k))*dphi7(k)^2-r3*sin(phi3(k))*ddphi3(k);
+        -r2*cos(phi2(k))*ddphi2(k)+r2*sin(phi2(k))*dphi2(k)^2-r3*sin(phi3(k))*dphi3(k)^2+AE*dphi4(k)^2*sin(phi4(k))-r7*sin(phi7(k))*dphi7(k)^2+r3*cos(phi3(k))*ddphi3(k);
+        r2*sin(phi2(k))*ddphi2(k)+r2*cos(phi2(k))*dphi2(k)^2+r4*sin(phi4(k))*dphi4(k)^2-r5*cos(phi5(k))*dphi5(k)^2;
         -r2*cos(phi2(k))*ddphi2(k)+r2*sin(phi2(k))*dphi2(k)^2+r4*dphi4(k)^2*sin(phi4(k))-r5*sin(phi5(k))*dphi5(k)^2;
-        r3*cos(phi3(k))*dphi3(k)^2-FC*cos(phi5(k))*dphi5(k)^2+r6*cos(phi6(k))*dphi6(k)^2;
-        r3*sin(phi3(k))*dphi3(k)^2-FC*sin(phi5(k))*dphi5(k)^2+r6*sin(phi6(k))*dphi6(k)^2];
+        r3*cos(phi3(k))*dphi3(k)^2-FC*cos(phi5(k))*dphi5(k)^2+r6*cos(phi6(k))*dphi6(k)^2+r3*sin(phi3(k))*ddphi3(k);
+        r3*sin(phi3(k))*dphi3(k)^2-FC*sin(phi5(k))*dphi5(k)^2+r6*sin(phi6(k))*dphi6(k)^2-r3*cos(phi3(k))*ddphi3(k)];
     
     x = A\B;
     % save results
-    ddphi3(k) = x(1);
+    ddy8(k) = x(1);
     ddphi4(k) = x(2);
     ddphi5(k) = x(3);
     ddphi6(k) = x(4);
@@ -133,7 +134,7 @@ for k=1:t_size
     
     
     % *** calculate initial values for next iteration step ***
-    phi3_init = phi3(k)+Ts*dphi3(k);
+    y8_init = y8(k)+Ts*dy8(k);
     phi4_init = phi4(k)+Ts*dphi4(k);
     phi5_init = phi5(k)+Ts*dphi5(k);
     phi6_init = phi6(k)+Ts*dphi6(k);
@@ -147,13 +148,13 @@ for k=1:t_size
     Control2(k) = (r3*exp(j*phi3(k))+r6*exp(j*phi6(k))-FC*exp(j*phi5(k)))-x8(k);
     Control2(k) = abs(Control2(k));
     
-    % Controleren door numerieke afgeleide
-    if k>2 && k<t_size
-        numdphi3(k) = (phi3(k+1)-phi3(k+1))/(2*Ts);
-    else
-        numdphi3(k) = 0;
-    end
-    control_numeric_dphi3(k) = numdphi3(k)-dphi3(k);
+%     % Controleren door numerieke afgeleide
+%     if k>2 && k<t_size
+%         numdphi3(k) = (phi3(k+1)-phi3(k+1))/(2*Ts);
+%     else
+%         numdphi3(k) = 0;
+%     end
+%     control_numeric_dphi3(k) = numdphi3(k)-dphi3(k);
 end % loop over positions
 
 
@@ -192,12 +193,12 @@ for m=1:length(index_vec)
     B = A + r4 * exp(j*phi4(index));
     D = O2 + r3*exp(j*phi3(index));
     %F = D + r5*exp(j*phi5(index));
-    C = B - r5 *exp(j*phi5(index));
+    C = r1+x8(index)+j*y8(index);
     F = C + FC*exp(j*phi5(index));
 
-    
+    %loop1 = [O1 A E D O2]
     loop1 = [O1 A E B F C];
-    loop2 = [O2 D E B F D O2];
+    loop2 = [O2 D E B F D];
     
     figure(10)
     clf
@@ -226,11 +227,14 @@ if fig_kin_8bar
     B = A + r4 * exp(j*phi4(index));
     D = O2 + r3*exp(j*phi3(index));
     %F = D + r5*exp(j*phi5(index));
-    C = B - r5 *exp(j*phi5(index));
+    y8(index)
+    C = O2 + x8(index) + j*y8(index);
+    %C = B - r5 *exp(j*phi5(index));
     F = C + FC*exp(j*phi5(index));
     
     
     figure
+    %assembly1=[O1 A E B C];
     assembly1=[O1 A E B F C];
     assembly2= [O2 D E B F D O2];
     plot(real(assembly1),imag(assembly1),'ro-',real(assembly2),imag(assembly2),'ro-')
@@ -298,7 +302,7 @@ if fig_kin_8bar
     % Plot difference of angle velocity computed numerically and exactly
     figure
     plot(t,control_numeric_dphi3)
-    ylabel('phi2error')
+    ylabel('phi3error')
     xlabel('t[s]')
     
 end
