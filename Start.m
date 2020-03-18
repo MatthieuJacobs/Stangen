@@ -19,18 +19,18 @@ fig_kin_8bar = 1;        % draw figures of kinematic analysis if 1
 fig_dyn_8bar = 1;        % draw figures of dynamic analysis if 1
 
 % kinematic parameters (link lengths)
-r0 = 0.4930;
-r1 = 0.15063;
-r2 = 0.08139;
-r5 = 0.49429;
-r6 = 0.40688;
+r1 = 0.4930;
+r2 = 0.15063;
+r3 = 0.08139;
+r6 = 0.49429;
+r7 = 0.40688;
 AE = 0.40875;
 FC = 0.49369;
 EB = 0.49402;
 BF = 0.40468;
-phi0 = 0;
-r3 = AE+EB;
-r4 = BF+FC;
+phi1 = 0;
+r4 = AE+EB;
+r5 = BF+FC;
 
 % r0 = 0.65;
 % r1 = 0.3;
@@ -55,11 +55,11 @@ Y2 = 0;                  % Y coordinates of cog
 Y3 = 0.0102362;
 Y4 = 0;
 
-m2 = r2*1.76;
+m2 = r3*1.76;
 m3 = r3*1.76;
 m4 = r4*0.54;
 
-J2 = m2*r2^2/12;
+J2 = m2*r3^2/12;
 J3 = m3*r3^2/12;
 J4 = m4*r4^2/12;
 
@@ -69,12 +69,12 @@ J4 = m4*r4^2/12;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % position analysis
-phi2_init = (pi+0.5)/2;
-phi3_init = pi/4;    % initial condition for first step of position analysis with fsolve (phi3 and phi4)
-phi4_init = 5*pi/3;  % VERY IMPORTANT because it determines which branch of the mechanism you're in
-phi5_init = pi/4;
-phi6_init = 2*pi/3;
-x7_init = r2*cos(phi2_init)+r5*cos(phi5_init)+FC*cos(phi4_init);
+phi3_init = (pi+0.5)/2;
+phi4_init = pi/4;    % initial condition for first step of position analysis with fsolve (phi3 and phi4)
+phi5_init = 5*pi/3;  % VERY IMPORTANT because it determines which branch of the mechanism you're in
+phi6_init = pi/4;
+phi7_init = 2*pi/3;
+x8_init = r3*cos(phi3_init)+r6*cos(phi6_init)-FC*cos(phi5_init);
 t_begin = 0;                   % start time of simulation
 t_end = 20;                    % end time of simulation
 Ts = 0.05;                     % time step of simulation
@@ -86,12 +86,12 @@ A = pi; % amplitude van hoek
 % phi1=A*sin(omega*t+theta);
 % dphi1=omega*A*cos(omega*t);
 % ddphi1=-omega^2*A*sin(omega*t); % omega ct
-phi1 = -omega*t+pi/2 -0.25;
-dphi1 = -omega*ones(length(t));
-ddphi1 =0*t;
+phi2 = -omega*t+pi/2 -0.25;
+dphi2 = -omega*ones(size(t));
+ddphi2 =0*t;
 
 % calculation of the kinematics (see kin_8bar.m)
-[phi2,phi3,phi4,phi5,phi6,x7,dphi2,dphi3,dphi4,dphi5,dphi6,dx7,ddphi2,ddphi3,ddphi4,ddphi5,ddphi6,ddx7] = kinematics_8bar(r0,r1,r2,r5,r6,AE,FC,BF,EB,phi0,phi1,dphi1,ddphi1,phi2_init,phi3_init,phi4_init,phi5_init,phi6_init,x7_init,t,fig_kin_8bar);
+[phi3,phi4,phi5,phi6,phi7,x8,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,ddphi3,ddphi4,ddphi5,ddphi6,ddphi7,ddx8] = kinematics_8bar(r1,r2,r3,r4,r5,r6,r7,AE,FC,phi2,dphi2,ddphi2,phi3_init,phi4_init,phi5_init,phi6_init,phi7_init,x8_init,t,fig_kin_8bar);
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % STEP 2. Dynamics Calculation
