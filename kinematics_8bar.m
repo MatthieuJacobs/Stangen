@@ -10,17 +10,20 @@ function [y8,phi4,phi5,phi6,phi7,x8,dy8,dphi4,dphi5,dphi6,dphi7,dx8,ddy8,ddphi4,
 % copy the vector each time we add an element.
 y8 = zeros(size(t));
 phi4 = zeros(size(t));
+phi3 = zeros(size(t));
 phi5 = zeros(size(t));
 phi6 = zeros(size(t));
 phi7 = zeros(size(t));
 x8 = zeros(size(t));
 dy8 = zeros(size(t));
+dphi3 = zeros(size(t));
 dphi4 = zeros(size(t));
 dphi5 = zeros(size(t));
 dphi6 = zeros(size(t));
 dphi7 = zeros(size(t));
 dx8 = zeros(size(t));
 ddy8 = zeros(size(t));
+ddphi3 = zeros(size(t));
 ddphi4 = zeros(size(t));
 ddphi5 = zeros(size(t));
 ddphi6 = zeros(size(t));
@@ -34,7 +37,7 @@ Control5 = zeros(size(t));
 Control6 = zeros(size(t));
 
 numdphi3 = zeros(size(t));
-control_numeric_dphi3 =  zeros(size(t));
+control_numeric_dphi4 =  zeros(size(t));
 numdphi4 = zeros(size(t));
 control_numeric_dphi4 =  zeros(size(t));
 numddphi3 = zeros(size(t));
@@ -145,19 +148,21 @@ for k=1:t_size
     % Controleren door kinematische lus
     Control1(k) = (r2*exp(j*phi2(k))+AE*exp(j*phi4(k)))-(r3*exp(j*phi3(k))+r7*exp(j*phi7(k))+r1);
     Control1(k) = abs(Control1(k));
-    Control2(k) = (r3*exp(j*phi3(k))+r6*exp(j*phi6(k))-FC*exp(j*phi5(k)))-x8(k);
+    Control2(k) = (r3*exp(j*phi3(k))+r6*exp(j*phi6(k))-FC*exp(j*phi5(k)))-x8(k)-j*y8(k);
     Control2(k) = abs(Control2(k));
     
-%     % Controleren door numerieke afgeleide
-%     if k>2 && k<t_size
-%         numdphi3(k) = (phi3(k+1)-phi3(k+1))/(2*Ts);
-%     else
-%         numdphi3(k) = 0;
-%     end
-%     control_numeric_dphi3(k) = numdphi3(k)-dphi3(k);
+
 end % loop over positions
 
-
+    % Controleren door numerieke afgeleide
+    for k = 1:t_size
+    if k>2 && k<t_size
+        numdphi4(k) = (phi4(k+1)-phi4(k+1))/(2*Ts);
+    else
+        numdphi4(k) = 0;
+    end
+    control_numeric_dphi4(k) = numdphi4(k)-dphi4(k);
+    end
 
 % *** create movie ***
 
@@ -249,7 +254,7 @@ if fig_kin_8bar
     ylabel('\phi_2 [rad]')
     subplot(612)
     plot(t,phi3)
-    ylabel('\phi_3 [rad]')
+    ylabel('\phi_4 [rad]')
     subplot(613)
     plot(t,x8)
     ylabel('x_8 [m]')
@@ -282,13 +287,13 @@ if fig_kin_8bar
     ylabel('dd\phi_2 [rad/s^2]')
     subplot(312)
     plot(t,ddphi4)
-    ylabel('dd\phi_3 [rad/s^2]')
+    ylabel('dd\phi_4 [rad/s^2]')
     subplot(313)
     plot(t,ddx8)
     ylabel('ddx_8 [m/s^2]')
     xlabel('t [s]')
     
-    % Plot differnce of position using 2 different kinematic chains
+    % Plot difference of position using 2 different kinematic chains
     figure
     subplot(211)
     plot(t,Control1)
@@ -301,8 +306,8 @@ if fig_kin_8bar
     
     % Plot difference of angle velocity computed numerically and exactly
     figure
-    plot(t,control_numeric_dphi3)
-    ylabel('phi3error')
+    plot(t,control_numeric_dphi4)
+    ylabel('phi4numericerror')
     xlabel('t[s]')
     
 end

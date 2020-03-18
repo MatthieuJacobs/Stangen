@@ -19,15 +19,15 @@ fig_kin_8bar = 1;        % draw figures of kinematic analysis if 1
 fig_dyn_8bar = 1;        % draw figures of dynamic analysis if 1
 
 % kinematic parameters (link lengths)
-r1 = 0.4930;
-r2 = 0.15063;
-r3 = 0.08139;
-r6 = 0.49429;
-r7 = 0.40688;
-AE = 0.40875;
-FC = 0.49369;
-EB = 0.49402;
-BF = 0.40468;
+r1 = 0.493;
+r2 = 0.151;
+r3 = 0.081;
+r6 = 0.494;
+r7 = 0.407;
+AE = 0.409;
+FC = 0.494;
+EB = 0.494;
+BF = 0.405;
 phi1 = 0;
 r4 = AE+EB;
 r5 = BF+FC;
@@ -70,12 +70,12 @@ J4 = m4*r4^2/12;
 
 
 t_begin = 0;                   % start time of simulation
-t_end = 100;                    % end time of simulation
-Ts = 0.02;                     % time step of simulation
+t_end = 20;                    % end time of simulation
+Ts = 0.05;                     % time step of simulation
 t = [t_begin:Ts:t_end]';       % time vector
 
 % initialization of driver
-omega = pi/40;
+omega = pi/10;
 A = pi; % amplitude van hoek
 % phi1=A*sin(omega*t+theta);
 % dphi1=omega*A*cos(omega*t);

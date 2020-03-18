@@ -113,7 +113,7 @@ for k=1:t_size
         0,AE*cos(phi4(k)),0,0,-r7*cos(phi7(k)),0;
         0,-r4*sin(phi4(k)),r5*sin(phi5(k)),0,0,-1;
         -1,r4*cos(phi4(k)),-r5*cos(phi5(k)),0,0,0;
-        0,-0,FC*sin(phi5(k)),-r6*cos(phi6(k)),0,-1;
+        0,0,FC*sin(phi5(k)),-r6*cos(phi6(k)),0,-1;
         -1,0,-FC*cos(phi5(k)),-r6*sin(phi6(k)),0,0];
      
     B = [r2*sin(phi2(k))*ddphi2(k)+r2*cos(phi2(k))*dphi2(k)^2+-r3*cos(phi3(k))*dphi3(k)^2+AE*cos(phi4(k))*dphi4(k)^2-r7*cos(phi7(k))*dphi7(k)^2-r3*sin(phi3(k))*ddphi3(k);
@@ -134,30 +134,31 @@ for k=1:t_size
     
     
     % *** calculate initial values for next iteration step ***
-    y8_init = y8(k);%+Ts*dy8(k);
-    phi4_init = phi4(k);%+Ts*dphi4(k);
-    phi5_init = phi5(k);%+Ts*dphi5(k);
-    phi6_init = phi6(k);%+Ts*dphi6(k);
-    phi7_init = phi7(k);%+Ts*dphi7(k);
-    x8_init = x8(k);%+Ts*dx8(k);
+    y8_init = y8(k)+Ts*dy8(k);
+    phi4_init = phi4(k)+Ts*dphi4(k);
+    phi5_init = phi5(k)+Ts*dphi5(k);
+    phi6_init = phi6(k)+Ts*dphi6(k);
+    phi7_init = phi7(k)+Ts*dphi7(k);
+    x8_init = x8(k)+Ts*dx8(k);
     
     
     % Controleren door kinematische lus
     Control1(k) = (r2*exp(j*phi2(k))+AE*exp(j*phi4(k)))-(r3*exp(j*phi3(k))+r7*exp(j*phi7(k))+r1);
     Control1(k) = abs(Control1(k));
-    Control2(k) = (r3*exp(j*phi3(k))+r6*exp(j*phi6(k))-FC*exp(j*phi5(k)))-x8(k);
+    Control2(k) = (r3*exp(j*phi3(k))+r6*exp(j*phi6(k))-FC*exp(j*phi5(k)))-x8(k)-y8(k);
     Control2(k) = abs(Control2(k));
     
-%     % Controleren door numerieke afgeleide
-%     if k>2 && k<t_size
-%         numdphi3(k) = (phi3(k+1)-phi3(k+1))/(2*Ts);
-%     else
-%         numdphi3(k) = 0;
-%     end
-%     control_numeric_dphi3(k) = numdphi3(k)-dphi3(k);
+
 end % loop over positions
 
-
+    % Controleren door numerieke afgeleide
+    for k = 1:t_
+    if k>2 && k<t_size
+        numdphi3(k) = (phi3(k+1)-phi3(k+1))/(2*Ts);
+    else
+        numdphi3(k) = 0;
+    end
+    control_numeric_dphi3(k) = numdphi3(k)-dphi3(k);
 
 % *** create movie ***
 
@@ -198,7 +199,7 @@ for m=1:length(index_vec)
 
     %loop1 = [O1 A E D O2]
     loop1 = [O1 A E B F C];
-    loop2 = [O2 D E B F ];
+    loop2 = [O2 D E B F D];
     
     figure(10)
     clf
@@ -227,7 +228,9 @@ if fig_kin_8bar
     B = A + r4 * exp(j*phi4(index));
     D = O2 + r3*exp(j*phi3(index));
     %F = D + r5*exp(j*phi5(index));
-    C = B - r5 *exp(j*phi5(index));
+    y8(index)
+    C = O2 + x8(index) + j*y8(index);
+    %C = B - r5 *exp(j*phi5(index));
     F = C + FC*exp(j*phi5(index));
     
     
