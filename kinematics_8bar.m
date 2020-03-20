@@ -36,14 +36,14 @@ Control4 = zeros(size(t));
 Control5 = zeros(size(t));
 Control6 = zeros(size(t));
 
-numdphi3 = zeros(size(t));
-control_numeric_dphi4 =  zeros(size(t));
+numdx8 = zeros(size(t));
+control_numeric_dx8 =  zeros(size(t));
 numdphi4 = zeros(size(t));
 control_numeric_dphi4 =  zeros(size(t));
-numddphi3 = zeros(size(t));
-control_numeric_ddphi3 =  zeros(size(t));
 numddphi4 = zeros(size(t));
 control_numeric_ddphi4 =  zeros(size(t));
+numddx8 = zeros(size(t));
+control_numeric_ddx8 =  zeros(size(t));
 
 
 % fsolve options (help fsolve, help optimset)
@@ -88,7 +88,7 @@ for k=1:t_size
     A = [0,-AE*sin(phi4(k)),0,0,r7*sin(phi7(k)),0;
          0,AE*cos(phi4(k)),0,0,-r7*cos(phi7(k)),0;
          0,-r4*sin(phi4(k)),r5*sin(phi5(k)),0,0,-1;
-         -1,r4*cos(phi5(k)),-r5*cos(phi5(k)),0,0,0;
+         -1,r4*cos(phi4(k)),-r5*cos(phi5(k)),0,0,0;
          0,0,FC*sin(phi5(k)),-r6*sin(phi6(k)),0,-1;
          -1,0,-FC*cos(phi5(k)),r6*cos(phi6(k)),0,0];
 
@@ -96,8 +96,8 @@ for k=1:t_size
          -r2*cos(phi2(k))*dphi2(k)+r3*cos(phi3(k))*dphi3(k);
           r2*sin(phi2(k))*dphi2(k);
          -r2*cos(phi2(k))*dphi2(k);
-         r3*sin(phi3(k));
-         -r3*cos(phi3(k))];
+         r3*sin(phi3(k))*dphi3(k);
+         -r3*cos(phi3(k))*dphi3(k)];
      
     x = A\B;
     
@@ -116,12 +116,12 @@ for k=1:t_size
         0,AE*cos(phi4(k)),0,0,-r7*cos(phi7(k)),0;
         0,-r4*sin(phi4(k)),r5*sin(phi5(k)),0,0,-1;
         -1,r4*cos(phi4(k)),-r5*cos(phi5(k)),0,0,0;
-        0,0,FC*sin(phi5(k)),-r6*cos(phi6(k)),0,-1;
-        -1,0,-FC*cos(phi5(k)),-r6*sin(phi6(k)),0,0];
+        0,0,FC*sin(phi5(k)),-r6*sin(phi6(k)),0,-1;
+        -1,0,-FC*cos(phi5(k)),+r6*cos(phi6(k)),0,0];
      
     B = [r2*sin(phi2(k))*ddphi2(k)+r2*cos(phi2(k))*dphi2(k)^2+-r3*cos(phi3(k))*dphi3(k)^2+AE*cos(phi4(k))*dphi4(k)^2-r7*cos(phi7(k))*dphi7(k)^2-r3*sin(phi3(k))*ddphi3(k);
         -r2*cos(phi2(k))*ddphi2(k)+r2*sin(phi2(k))*dphi2(k)^2-r3*sin(phi3(k))*dphi3(k)^2+AE*dphi4(k)^2*sin(phi4(k))-r7*sin(phi7(k))*dphi7(k)^2+r3*cos(phi3(k))*ddphi3(k);
-        r2*sin(phi2(k))*ddphi2(k)+r2*cos(phi2(k))*dphi2(k)^2+r4*sin(phi4(k))*dphi4(k)^2-r5*cos(phi5(k))*dphi5(k)^2;
+        r2*sin(phi2(k))*ddphi2(k)+r2*cos(phi2(k))*dphi2(k)^2+r4*cos(phi4(k))*dphi4(k)^2-r5*cos(phi5(k))*dphi5(k)^2;
         -r2*cos(phi2(k))*ddphi2(k)+r2*sin(phi2(k))*dphi2(k)^2+r4*dphi4(k)^2*sin(phi4(k))-r5*sin(phi5(k))*dphi5(k)^2;
         r3*cos(phi3(k))*dphi3(k)^2-FC*cos(phi5(k))*dphi5(k)^2+r6*cos(phi6(k))*dphi6(k)^2+r3*sin(phi3(k))*ddphi3(k);
         r3*sin(phi3(k))*dphi3(k)^2-FC*sin(phi5(k))*dphi5(k)^2+r6*sin(phi6(k))*dphi6(k)^2-r3*cos(phi3(k))*ddphi3(k)];
@@ -157,11 +157,20 @@ end % loop over positions
     % Controleren door numerieke afgeleide
     for k = 1:t_size
     if k>2 && k<t_size
-        numdphi4(k) = (phi4(k+1)-phi4(k+1))/(2*Ts);
+        numdphi4(k) = (phi4(k+1)-phi4(k-1))/(2*Ts);
+        numdx8(k) = (x8(k+1)-x8(k-1))/(2*Ts);
+        numddphi4(k) = (dphi4(k+1)-dphi4(k-1))/(2*Ts);
+        numddx8(k) = (dx8(k+1)-dx8(k-1))/(2*Ts);
     else
-        numdphi4(k) = 0;
+        numdphi4(k) = dphi4(k);
+        numdx8(k) = dx8(k);
+        numddphi4(k) = ddphi4(k);
+        numddx8(k) = ddx8(k);
     end
     control_numeric_dphi4(k) = numdphi4(k)-dphi4(k);
+    control_numeric_dx8(k) = numdx8(k)-dx8(k);
+    control_numeric_ddphi4(k) = numddphi4(k)-ddphi4(k);
+    control_numeric_ddx8(k) = numddx8(k)-ddx8(k);
     end
 
 % *** create movie ***
@@ -253,7 +262,7 @@ if fig_kin_8bar
     plot(t,phi2)
     ylabel('\phi_2 [rad]')
     subplot(612)
-    plot(t,phi3)
+    plot(t,phi4)
     ylabel('\phi_4 [rad]')
     subplot(613)
     plot(t,x8)
@@ -305,10 +314,24 @@ if fig_kin_8bar
     xlabel('t [s]')
     
     % Plot difference of angle velocity computed numerically and exactly
-    figure
+    figure()
+    subplot(411)
     plot(t,control_numeric_dphi4)
-    ylabel('phi4numericerror')
+    ylabel('dphi4numericerror')
     xlabel('t[s]')
+    subplot(412)
+    plot(t,control_numeric_ddphi4)
+    ylabel('ddphi4numericerror')
+    xlabel('t[s]')
+    subplot(413)
+    plot(t,control_numeric_dx8)
+    ylabel('dx8numericerror')
+    xlabel('t[s]')
+    subplot(414)
+    plot(t,control_numeric_ddx8)
+    ylabel('ddx8numericerror')
+    xlabel('t[s]')
+    
     
 end
 
