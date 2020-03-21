@@ -50,19 +50,32 @@ r5 = BF+FC;
 X2 = r2/2;               % X coordinates of cog (centre of gravity)
 X3 = r3/2;
 X4 = r4/2;
+X5 = r5/2;
+X6 = r6/2;
+X7 = r7/2;
 
 Y2 = 0;                  % Y coordinates of cog
 Y3 = 0.0102362;
 Y4 = 0;
 
-m2 = r3*1.76;
-m3 = r3*1.76;
-m4 = r4*0.54;
+m2 = r3*0.2;
+m3 = r3*0.2;
+m4 = r4*0.2;
+m5 = r5*0.2;
+m6 = r6*0.2;
+m7 = r7*0.2;
+mt2 = pi*r1*0.2;
+mt3 = mt2;
+m8 = 0.05*1;
 
 J2 = m2*r3^2/12;
 J3 = m3*r3^2/12;
 J4 = m4*r4^2/12;
-
+J5 = m5*r5^2/12;
+J6 = m6*r6^2/12;
+J7 = m7*r7^2/12;
+Jt2 = mt2*r1^2/8;
+Jt3 = mt3*r1^2/8;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % STEP 1. Determination of Kinematics
@@ -83,7 +96,9 @@ A = pi; % amplitude van hoek
 phi2 = -omega*t+pi/2 -0.25;
 dphi2 = -omega*ones(size(t));
 ddphi2 =0*t;
-
+phi3 = pi-phi2;
+dphi3 = dphi2;
+ddphi3 = ddphi2;
 % position analysis
 y8_init = 0;
 phi3_init = pi-phi2(1);
@@ -98,16 +113,19 @@ x8_init = r3*cos(phi3_init)+r6*cos(phi6_init)-FC*cos(phi5_init);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % STEP 2. Dynamics Calculation
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% % calculation of the dynamics (see dyn_4bar.m)
-% [F_P_x,F_Q_x,F_R_x,F_S_x,F_P_y,F_Q_y,F_R_y,F_S_y,M_P] = dynamics_4bar(phi2,phi3,phi4,dphi2,dphi3,dphi4,ddphi2,ddphi3,ddphi4,r2,r3,r4, ...
-%   m2,m3,m4,X2,X3,X4,Y2,Y3,Y4,J2,J3,J4,t,fig_dyn_4bar);
-% 
-% 
+
+% calculation of the dynamics (see dyn_4bar.m)
+[M2t2,F2t2x,F2t2y,Ft2x,Ft2y,F3t3x,F3t3y,M3t3,Ft3y,Ft3x,F42x,F42y,F73x,F73y,F63y,F63x,F74x,F74y,F54x,F54y,F65x,F65y,F85x,F85y,M2,M3] = dynamics_8bar(phi2,phi3,phi4,phi5,phi6,phi7,x8,y8,dphi2,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,dy8,...
+    ddphi2,ddphi3,ddphi4,ddphi5,ddphi6,ddphi7,ddx8,ddy8,...
+    r2,r3,r4,r5,r6,r7,AE,FC,r1, ...
+    m2,m3,m4,m5,m6,m7,m8,...
+    J2,J3,J4,J5,J6,J7,Jt2,Jt3,t,fig_dyn_8bar);
+
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % STEP 3. Movie
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% figure
-% load fourbar_movie Movie
-% movie(Movie)
+
+figure
+load fourbar_movie Movie
+movie(Movie)
