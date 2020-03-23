@@ -78,7 +78,7 @@ control_numeric_ddy8 =  zeros(size(t));
 
 
 % fsolve options (help fsolve, help optimset)
-optim_options = optimset('Display','off');
+optim_options = optimset('Display','off','TolFun',10^-12);
 % *** loop over positions ***
 Ts = t(2) - t(1);      % timestep
 t_size = size(t,1);    % number of simulation steps
@@ -95,6 +95,7 @@ for k=1:t_size
     % argument a1 ... phi0: constants
     % return value x: solution for the unknown angles
     % return exitflag: indicates convergence of algorithm
+    optim_options.OptimalityTolerance = 1e-10;
     [x, fval, exitflag]=fsolve('loop_closure_eqs_8bar',[y8_init,phi4_init phi5_init,phi6_init,phi7_init,x8_init]',optim_options,phi2(k),r1,r2,r3,r4,r5,r6,r7,AE,FC);
     if (exitflag ~= 1)
         display 'The fsolve exit flag was not 1, probably no convergence!'
