@@ -54,26 +54,22 @@ X5 = r5/2;
 X6 = r6/2;
 X7 = r7/2;
 
-Y2 = 0;                  % Y coordinates of cog
-Y3 = 0.0102362;
-Y4 = 0;
-
-m2 = r3*0.2;
-m3 = r3*0.2;
-m4 = r4*0.2;
-m5 = r5*0.2;
-m6 = r6*0.2;
-m7 = r7*0.2;
-mt2 = pi*r1*0.2;
+m2 = r2*2;
+m3 = r3*2;
+m4 = r4*2;
+m5 = r5*2;
+m6 = r6*2;
+m7 = r7*2;
+mt2 = pi*r1*2;
 mt3 = mt2;
-m8 = 0.05*1;
+m8 = 5*1;
 
-J2 = m2*r3^2/12;
+J2 = m2*r2^2/12;
 J3 = m3*r3^2/12;
 J4 = m4*r4^2/12;
 J5 = m5*r5^2/12;
 J6 = m6*r6^2/12;
-J7 = m7*r7^2/12;
+J7 = m7*r7^2/12+(0.43*r7)^2*m7+(0.07*r7^2)*m8;
 Jt2 = mt2*r1^2/8;
 Jt3 = mt3*r1^2/8;
 
@@ -88,7 +84,7 @@ Ts = 0.05;                     % time step of simulation
 t = [t_begin:Ts:t_end]';       % time vector
 
 % initialization of driver
-omega = pi/10;
+omega = pi/5;
 A = pi; % amplitude van hoek
 % phi1=A*sin(omega*t+theta);
 % dphi1=omega*A*cos(omega*t);
@@ -97,8 +93,8 @@ phi2 = -omega*t+pi/2 -0.25;
 dphi2 = -omega*ones(size(t));
 ddphi2 =0*t;
 phi3 = pi-phi2;
-dphi3 = dphi2;
-ddphi3 = ddphi2;
+dphi3 = -dphi2;
+ddphi3 = -ddphi2;
 % position analysis
 y8_init = 0;
 phi3_init = pi-phi2(1);

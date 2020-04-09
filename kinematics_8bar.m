@@ -320,7 +320,6 @@ if fig_kin_8bar
     B = A + r4 * exp(j*phi4(index));
     D = O2 + r3*exp(j*phi3(index));
     %F = D + r5*exp(j*phi5(index));
-    y8(index)
     C = O2 + x8(index) + j*y8(index);
     %C = B - r5 *exp(j*phi5(index));
     F = C + FC*exp(j*phi5(index));

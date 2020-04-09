@@ -10,7 +10,7 @@
 function F=loop_closure_eqs_8bar(phi_init,phi2,r1,r2,r3,r4,r5,r6,r7,AE,FC)
 
 % first argument: the initial values of the unknown angles and unknown
-% distance x7
+% distance x8
 % argument phi1: input angle phi1 for which we want to calculate the
 % unknowns
 % arguments: constants
