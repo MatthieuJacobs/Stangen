@@ -13,7 +13,7 @@
 
 
 function [F2x,F2y,F3x,F3y,F42x,F42y,F63x,F63y,F73x,F73y,F54x,F54y,F74x,F74y,F65x,F65y,M2,M3] = ...
-dynamics_8bar(phi2,phi3,phi4,phi5,phi6,phi7,x8,y8,dphi2,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,dy8,...
+dynamics_8bar_gravity(phi2,phi3,phi4,phi5,phi6,phi7,x8,y8,dphi2,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,dy8,...
     ddphi2,ddphi3,ddphi4,ddphi5,ddphi6,ddphi7,ddx8,ddy8,...
     r2,r3,r4,r5,r6,r7,AE,FC,r1, ...
     m2,m3,m4,m5,m6,m7,m8,...
@@ -122,16 +122,15 @@ acc_7x = acc_7(:,1);
 acc_7y = acc_7(:,2);
 acc_8x = acc_8(:,1);
 acc_8y = acc_8(:,2);
-
+% Add gravity
+g = 9.81;
 % Testing
-Evartest = zeros(size(phi2));
 Xtest = zeros(size(phi2));
 Ytest = zeros(size(phi2));
 Mtest = zeros(size(phi2));
 Fshakx = zeros(size(phi2));
 Fshaky = zeros(size(phi2));
 Mshak = zeros(size(phi2));
-Evar = zeros(size(phi2));
 % **********************
 % *** force analysis ***
 % **********************
@@ -186,25 +185,25 @@ for k=1:t_size
  A(20,20) = 1;
   %[R, bj] = rref(A')     
   B = [ m2*acc_2x(k);
-        m2*acc_2y(k);
+        m2*acc_2y(k)+m2*g;
         m3*acc_3x(k);
-        m3*acc_3y(k);
+        m3*acc_3y(k)+m3*g;
         m4*acc_4x(k);
-        m4*acc_4y(k);
+        m4*acc_4y(k)+m4*g;
         m5*acc_5x(k);
-        m5*acc_5y(k);
+        m5*acc_5y(k)+m5*g;
         m6*acc_6x(k);
-        m6*acc_6y(k);
+        m6*acc_6y(k)+m6*g;
         m7*acc_7x(k);
-        m7*acc_7y(k);
-        J2f*ddphi2(k);
-        J3f*ddphi3(k);
+        m7*acc_7y(k)+m7*g;
+        J2f*ddphi2(k)+m2*g*x2(k)/2;
+        J3f*ddphi3(k)+m3*g*x3(k)/2;
         J4*ddphi4(k);
         J5*ddphi5(k);
         J6*ddphi6(k);
         J7*ddphi7(k);
         m8*acc_8x(k);
-        m8*acc_8y(k)];
+        m8*acc_8y(k)+m8*g];
         
     
     x = A\B;
@@ -233,20 +232,15 @@ F58y(k) = x(20);
 M(k) = -M2(k)-M3(k);
 
 %%%%% Dynamic checks %%%%%%%%%%%%
-% Method 1: Variation of kinetic energy
+
 mass = [m2,m3,m4,m5,m6,m7,m8];
 inertia = [J2,J3,J4,J5,J6,J7,0];
 arm = [arm2(k,:);arm3(k,:);arm4(k,:);arm5(k,:);arm6(k,:);arm7(k,:);arm8(k,:)];
-vel = [vel_2(k,:);vel_3(k,:);vel_4(k,:);vel_5(k,:);vel_6(k,:);vel_7(k,:);vel_8(k,:)];
 acc = [acc_2(k,:);acc_3(k,:);acc_4(k,:);acc_5(k,:);acc_6(k,:);acc_7(k,:);acc_8(k,:)];
-omega = [omega2(k,3),omega3(k,3),omega4(k,3),omega5(k,3),omega6(k,3),omega7(k,3),0];
 alpha = [alpha2(k,3),alpha3(k,3),alpha4(k,3),alpha5(k,3),alpha6(k,3),alpha7(k,3),0];
-for i=1:7
-    Evar(k) = Evar(k)+mass(i)*(acc(i,1)*vel(i,1)+acc(i,2)*vel(i,2))+inertia(i)*omega(i)*alpha(i);
-end
-Evartest(k) = Evar(k)-M(k)*omega(1);
 
-% Method 2: Shaking Forces and Moments
+
+% Method : Shaking Forces and Moments
 Fshakx(k) = -(F2x(k)+F3x(k));
 Fshaky(k) = -(F2y(k)+F3y(k));
 Mshak(k) = -(-M2(k)+M3(k)+r1*F3y(k));
@@ -256,6 +250,7 @@ Xtest(k) = Fshakx(k);
 Ytest(k) = Fshaky(k);
 Mtest(k) = Mshak(k);
 for i=1:7
+    acc(i,2) = acc(i,2)+g;
     Xtest(k) = Xtest(k)+mass(i)*acc(i,1);
     Ytest(k) = Ytest(k)+mass(i)*acc(i,2);
     Mr = mass(i)*cross(transpose(arm(i,:)),transpose(acc(i,:)));
@@ -270,12 +265,11 @@ end
 
 if fig_dyn_8bar
     
-%     figure
-%     plot(t,M),grid
-%     xlabel("time [s]")
-%     ylabel("Driving Moment [Nm]")
-%     axis tight
-%     figure
+    figure
+    plot(t,M),grid
+    xlabel("time [s]")
+    ylabel('Driving Moment [Nm]')
+    axis tight
     figure
     subplot(2,1,1)
     plot(F73x,F73y),grid
@@ -287,24 +281,8 @@ if fig_dyn_8bar
     ylabel('F65x')
     xlabel("time [s]")
     axis tight
-
-    figure
-    subplot(2,1,1)
-    plot(t,Evar);
-    ylabel('Kinetic Energy Variation [W]')
-    xlabel("time [s]")
-    subplot(2,1,2)
-    plot(t,Evartest)
-    ylabel('Absolute error [W]')
-    xlabel("time [s]")
     
-%     figure
-%     plot(t,M),grid
-%     xlabel("time [s]")
-%     ylabel('Driving Moment [Nm]')
-%     axis tight
-% 
-% 
+    
 %     figure
 %     subplot(2,1,1)
 %     plot(t,M3)
@@ -342,8 +320,8 @@ if fig_dyn_8bar
 %     plot(t,Mtest)
 %     ylabel('Absolute error [Nm]')
 %     xlabel("time [s]")
-%     
-%     
+    
+    
 end
- 
+
 

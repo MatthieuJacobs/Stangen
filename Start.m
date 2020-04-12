@@ -15,8 +15,9 @@ close all
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % program data
-fig_kin_8bar = 1;        % draw figures of kinematic analysis if 1
-fig_dyn_8bar = 1;        % draw figures of dynamic analysis if 1
+fig_kin_8bar = 0;        % draw figures of kinematic analysis if 1
+fig_dyn_8bar = 0;        % draw figures of dynamic analysis if 1
+fig_forward = 1;
 
 % kinematic parameters (link lengths)
 r1 = 0.493;
@@ -54,22 +55,22 @@ X5 = r5/2;
 X6 = r6/2;
 X7 = r7/2;
 
-m2 = r2*2;
-m3 = r3*2;
-m4 = r4*2;
-m5 = r5*2;
-m6 = r6*2;
-m7 = r7*2;
-mt2 = pi*r1*2;
+m2 = r2*1/2;
+m3 = r3*1/2;
+m4 = r4*1/2;
+m5 = r5*1/2;
+m6 = r6*1/2;
+m7 = r7*1/2;
+mt2 = pi*r1*1/2;
 mt3 = mt2;
-m8 = 5*1;
+m8 = 1;
 
 J2 = m2*r2^2/12;
 J3 = m3*r3^2/12;
 J4 = m4*r4^2/12;
 J5 = m5*r5^2/12;
 J6 = m6*r6^2/12;
-J7 = m7*r7^2/12+(0.43*r7)^2*m7+(0.07*r7^2)*m8;
+J7 = m7*r7^2/12;
 Jt2 = mt2*r1^2/8;
 Jt3 = mt3*r1^2/8;
 
@@ -110,18 +111,35 @@ x8_init = r3*cos(phi3_init)+r6*cos(phi6_init)-FC*cos(phi5_init);
 % % STEP 2. Dynamics Calculation
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% calculation of the dynamics (see dyn_4bar.m)
+%calculation of the dynamics (see dyn_4bar.m)
 [F2x,F2y,F3x,F3y,F42x,F42y,F63x,F63y,F73x,F73y,F54x,F54y,F74x,F74y,F65x,F65y,M2,M3] = dynamics_8bar(phi2,phi3,phi4,phi5,phi6,phi7,x8,y8,dphi2,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,dy8,...
     ddphi2,ddphi3,ddphi4,ddphi5,ddphi6,ddphi7,ddx8,ddy8,...
     r2,r3,r4,r5,r6,r7,AE,FC,r1, ...
     m2,m3,m4,m5,m6,m7,m8,...
     J2,J3,J4,J5,J6,J7,Jt2,Jt3,t,fig_dyn_8bar);
 
-
+% calculation of the dynamics with gravity implemented
+% [F2x,F2y,F3x,F3y,F42x,F42y,F63x,F63y,F73x,F73y,F54x,F54y,F74x,F74y,F65x,F65y,M2,M3] = dynamics_8bar_gravity(phi2,phi3,phi4,phi5,phi6,phi7,x8,y8,dphi2,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,dy8,...
+%     ddphi2,ddphi3,ddphi4,ddphi5,ddphi6,ddphi7,ddx8,ddy8,...
+%     r2,r3,r4,r5,r6,r7,AE,FC,r1, ...
+%     m2,m3,m4,m5,m6,m7,m8,...
+%     J2,J3,J4,J5,J6,J7,Jt2,Jt3,t,fig_dyn_8bar);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % STEP 3. Movie
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-figure
-load fourbar_movie Movie
-movie(Movie)
+% figure
+% load fourbar_movie Movie
+% movie(Movie)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Forward Analysis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Compute velocities and internal forces using driving moments and initial
+% position
+[phi2,phi3,phi4,phi5,phi6,phi7,x8,y8,dphi2,dphi3,dphi4,dphi5,dphi6,dphi7,dx8,dy8,...
+    ddphi2,ddphi3,ddphi4,ddphi5,ddphi6,ddphi7,ddx8,ddy8,...
+    F42x,F42y,F63x,F63y,F73x,F73y,F65x,F65y,F58x,F58y,F74x,F74y,F54x,F54y] = ...
+    forward_dynamics(M2,M3,...
+    r2,r3,r4,r5,r6,r7,AE,FC,r1,m2,m3,m4,m5,m6,m7,m8,...
+    J2,J3,J4,J5,J6,J7,Jt2,Jt3,t,fig_forward);
