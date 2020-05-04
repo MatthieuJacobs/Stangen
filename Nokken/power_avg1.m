@@ -21,8 +21,7 @@ P1=(N.*cos(alpha).*e + N.*sin(alpha).*(R0.^2-e.^2).^(1/2)).*omega;
 
 %compute energy consumed in one rotation and average power 
 P_avg = mean(P1); 
-t = 60/cam_ecc.rpm;
-P_avg_list = repmat(P_avg/t,1,36000);
+P_avg_list = repmat(P_avg,1,36000);
 x= cam_ecc.thetadegree;
 
 hold on 
