@@ -43,17 +43,14 @@ I = abs((A_max)/((omega^2)*K));
 R_max = max(R0);
 m = I*2/((R_max)^2);
 
-%compute approximation of Amax
-A_maxapprox = trapz(x(tm:tM),T1(tm:tM));
-
-
 %plot torque demand and average power 
-
 hold on
-plot(x,T1)
+%plot(x,T1)
 plot(x,delta_T)
 xlabel('theta [degrees]');
 ylabel('T[Nm]');
+xline(tm);
+xline(tM);
 hold off
 
 
