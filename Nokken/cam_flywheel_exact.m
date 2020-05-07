@@ -17,35 +17,28 @@ R0=(cam_pow.xpitch.^2+cam_pow.ypitch.^2).^(1/2)*0.001;
 
 %compute torque:
 T1 = (N.*cos(alpha).*e + N.*sin(alpha).*(R0.^2-e.^2).^(1/2)); %instanteneous torque 
-T_avg = mean(T1); %torque the engine will produce in regime 
+TM = mean(T1); %torque the engine will produce in regime 
 x= cam_pow.thetadegree;
 
 %compute speed variation and work surplus
-delta_T = T1-T_avg;
+deltaT = T1-TM;
 
-A = zeros(size(x));
+A = zeros(size(T1));
 for i = 2:36000
-    A(i) = (trapz(x(1:i),delta_T(1:i))); 
+    A(i) = trapz(x(1:i),T1(1:i)-TM); 
 end
 
-[~,cM] = max(A);
-[~,cm] = min(A);
-tM = cM/100;
-tm = cm/100;
+[~,tM] = max(A);
+[~,tm] = min(A);
 
 %compute Amax and I 
-A_max = trapz(x(min(tm,tM):max(tm,tM)),T1(min(tm,tM):max(tm,tM))-T_avg);
+A_max = trapz(x(min(tm,tM):max(tm,tM)),T1(min(tm,tM):max(tm,tM))-TM)*pi/180;
 K=0.1;
 I = abs((A_max)/((omega^2)*K));
 
 %compute weight of flywheel
 R_max = max(R0);
 m = I*2/((R_max)^2);
-
-
-%compute kinetic energy in regime 
-E_kin = I*(omega^2)/2;
-
 
 %plot torque demand and average power 
 figure 
@@ -54,15 +47,15 @@ tiledlayout(2,1)
 nexttile
 hold on
 plot(x,T1)
-plot(x,delta_T)
+plot(x,deltaT)
 legend('Instanteneous torque','Torque variation')
 hold off
 
 nexttile
 hold on
 plot(x,A)
-xline(tM)
-xline(tm)
+xline(tM/100)
+xline(tm/100)
 legend('work function')
 hold off
 
