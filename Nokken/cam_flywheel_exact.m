@@ -40,15 +40,19 @@ I = abs((A_max)/((omega^2)*K));
 R_max = max(R0);
 m = I*2/((R_max)^2);
 
+%kinetic energy needed flywheel to go into regime 
+E_kin = I*(omega^2)/2;
+
+
 %plot torque demand and average power 
 figure 
 tiledlayout(2,1)
 
 nexttile
 hold on
-plot(x,T1)
+%plot(x,T1)
 plot(x,deltaT)
-legend('Instanteneous torque','Torque variation')
+legend('Torque variation')
 hold off
 
 nexttile
