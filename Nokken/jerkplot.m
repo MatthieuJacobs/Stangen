@@ -2,9 +2,9 @@
 % compute jerk and Djerk
 % -------------------------------
 clear variables
-close all
 
-load('motionlaw_pg2')
+
+load('motionlaw_pg1')
 x = thetadegree; 
 
 %compute jerk and Djerk

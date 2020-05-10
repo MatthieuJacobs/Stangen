@@ -20,6 +20,7 @@ tcyc = 2;
 omega = pi;
 t1 = camfol.t1;
 t2 = camfol.t2;
+t3 = 2*(360-180)/360;
 
 %define transfer function
 dividend =  (2*pi*lambda)^2;
@@ -34,9 +35,9 @@ X0 = [1/C(2)*theta_dot0;1/C(2)*theta0];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% numerical solution with transfer function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %define exact input and time 
-tau1 = linspace(0,t2/t1,23000); %230 degrees we want to analyse
-theta1 = cam.S(15000:36000)/h;
-theta1 = [theta1,zeros(1,1999)]; %data points of cam profile from 150° to 380°
+tau1 = linspace(0,t3/t1,21000); %230 degrees we want to analyse
+theta1 = cam.S(15000:35999)/h;
+theta1 = [theta1]; %data points of cam profile from 150° to 380°
 gamma1 = lsim(A,B,C,D,theta1,tau1,X0);
 gamma1 = transpose(gamma1);
 
@@ -46,7 +47,7 @@ gamma1 = transpose(gamma1);
 %define parameters
 Q = (2*pi)^2;
 N = 3;
-tau2 = linspace(0,t2/t1,23000);
+tau2 = linspace(0,t2/t1,21000);
 theta2 = ((Q.*(tau2-1).^N)/factorial(N)+1)/h;
 gamma2 = lsim(A,B,C,D,theta2,tau2,X0);
 gamma2 = transpose(gamma2);
