@@ -65,7 +65,6 @@ t1 = 1/6;
 kf = 4.55*10^7;
 lambda = (t1/(2*pi))*sqrt((kf+ks)/m);
 cond = zeta*lambda;
-t2_min = t1*(1+log(0.02)/(-zeta*2*pi*lambda));
 
 
 

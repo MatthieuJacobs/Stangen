@@ -1,0 +1,44 @@
+% CAM ASSIGNMENT subtask 4.3
+% Computation of contact forces
+clear variables
+close all 
+
+
+cam = load('campower_ecc32');
+camfol = load('stiffness');
+
+%define parameters
+h=30;
+m=25;
+zeta = 0.063;
+kf = 4.55*10^7;
+t1 = 1/6;
+t2 = 10/9;
+t3 = 2*(360-180)/360;
+ks = 4;
+lambda = (t1/(2*pi))*sqrt((camfol.kf*+ks)/m);
+
+
+%define transfer function
+dividend = (2*pi*lambda)^2;
+divisor = [1, 2*zeta*(2*pi*lambda), (2*pi*lambda)^2];
+sys = tf(dividend, divisor);
+
+tau = linspace(0,1,36000); % vul zelf in, dimensieloze tijd
+theta = cam.S/h; % vul zelf in, dimensieloze heffing theta als functie van tau
+gamma = lsim(sys,theta,tau);
+gamma = transpose(gamma);
+
+%dimensionless deviation from input
+dev = gamma-theta;
+devabs = dev*h*10^(-3);
+extranorm = devabs*kf;
+
+
+
+%plots
+figure
+hold on 
+plot(cam.,gamma-theta)
+legend('dimensionless deviation from input')
+hold off

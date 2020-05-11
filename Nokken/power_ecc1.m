@@ -37,12 +37,21 @@ P2=N.*sin(alpha).*R0*omega;
 %--------------------------------------------------------%
 %plot both cases 
 figure
+tiledlayout(1,2)
+
+nexttile
 hold on 
 plot(cam_ecc.thetadegree,P1)
 plot(cam_norm.thetadegree,P2,'-')
-title('Combination power with/without excentricity')
 legend('with excentricity','without excentricity')
 hold off
+
+%plot difference between two curves
+diff = P1-P2;
+nexttile
+plot(cam_ecc.thetadegree,diff)
+legend('difference')
+
 
 
 
