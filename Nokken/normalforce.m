@@ -32,7 +32,7 @@ gamma = transpose(gamma);
 %dimensionless deviation from input
 dev = gamma-theta;
 devabs = dev*0.030;
-extranorm = (devabs/10)*kf;
+extranorm = (devabs)*kf./cos(cam.pressure_angle);
 
 %add this to existing normal force 
 normal = cam.normalforce_tot;
@@ -53,6 +53,7 @@ hold off
 nexttile
 hold on
 plot(x,extranorm*(-1));
+plot(x,normal)
 plot(x,normtot);
-legend('addition normal force','total normalforce')
+legend('addition contact force','initial contact force','total contact force')
 hold off
