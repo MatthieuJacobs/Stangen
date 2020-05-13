@@ -1,5 +1,6 @@
 % CAM ASSIGNMENT subtask 4.3
-% Computation of contact forces
+% Computation of contact force with deformable follower 
+
 clear variables
 close all 
 
